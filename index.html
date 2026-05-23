@@ -1,0 +1,2607 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BayLine Command Center</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <div class="brand">
+          <div class="brand-mark" id="brandInitials">BL</div>
+          <div>
+            <p class="eyebrow">Command Center</p>
+            <h1 id="brandName">BayLine Command Center</h1>
+          </div>
+        </div>
+
+        <div class="arm-switcher" aria-label="Operational arm">
+          <button class="arm-button active" type="button" data-arm-target="wms">WMS</button>
+          <button class="arm-button" type="button" data-arm-target="tms">TMS</button>
+          <button class="arm-button" type="button" data-arm-target="portal">Portal</button>
+          <button class="arm-button" type="button" data-arm-target="admin">Admin</button>
+          <button class="arm-button" type="button" data-arm-target="settings">Settings</button>
+        </div>
+
+        <nav class="nav-list">
+          <button class="nav-item active" type="button" data-arm="wms" data-view-target="dashboard">WMS Dashboard</button>
+          <button class="nav-item" type="button" data-arm="wms" data-view-target="warehouses">Warehouses</button>
+          <button class="nav-item" type="button" data-arm="wms" data-view-target="skus">SKU Catalog</button>
+          <button class="nav-item" type="button" data-arm="wms" data-view-target="bays">Bays</button>
+          <button class="nav-item" type="button" data-arm="wms" data-view-target="inventory">Inventory</button>
+          <button class="nav-item" type="button" data-arm="wms" data-view-target="receive">Receive Inbound</button>
+          <button class="nav-item" type="button" data-arm="wms" data-view-target="outbound">Outbound</button>
+          <button class="nav-item" type="button" data-arm="wms" data-view-target="customers">Customers</button>
+          <button class="nav-item" type="button" data-arm="wms" data-view-target="labor">Staff & Labor</button>
+          <button class="nav-item" type="button" data-arm="wms" data-view-target="documents">Doc Staging</button>
+          <button class="nav-item" type="button" data-arm="wms" data-view-target="picks">Pick Requests</button>
+          <button class="nav-item" type="button" data-arm="wms" data-view-target="kitting">Kitting</button>
+          <button class="nav-item" type="button" data-arm="wms" data-view-target="reports">WMS Reports</button>
+          <button class="nav-item" type="button" data-arm="tms" data-view-target="tms-dashboard">TMS Dashboard</button>
+          <button class="nav-item" type="button" data-arm="tms" data-view-target="tms-orders">Transportation Orders</button>
+          <button class="nav-item" type="button" data-arm="tms" data-view-target="tms-loads">Loads</button>
+          <button class="nav-item" type="button" data-arm="tms" data-view-target="tms-carriers">Carriers</button>
+          <button class="nav-item" type="button" data-arm="tms" data-view-target="tms-carrier-rates">Carrier Rates</button>
+          <button class="nav-item" type="button" data-arm="tms" data-view-target="tms-client-rates">Client Rates</button>
+          <button class="nav-item" type="button" data-arm="tms" data-view-target="tms-documents">BOL & Summaries</button>
+          <button class="nav-item" type="button" data-arm="tms" data-view-target="tms-reports">TMS Reports</button>
+          <button class="nav-item" type="button" data-arm="portal" data-view-target="customer-portal">Customer Portal</button>
+          <button class="nav-item admin-nav" type="button" data-arm="admin" data-view-target="admin">Admin</button>
+          <button class="nav-item" type="button" data-arm="settings" data-view-target="settings">Settings</button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <p class="eyebrow">Saved Locally</p>
+          <p id="saveStatus">Ready</p>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="activeArmLabel">WMS Arm</p>
+            <h2 id="viewTitle">Dashboard</h2>
+          </div>
+          <div class="topbar-actions">
+            <select class="topbar-select" id="topWarehouseFilter" aria-label="Warehouse filter"></select>
+            <button class="ghost-button" type="button" id="loadDemoButton">Load Demo</button>
+            <button class="ghost-button" type="button" id="exportButton">Export</button>
+            <label class="ghost-button file-button" for="importFile">Import</label>
+            <input id="importFile" type="file" accept="application/json" hidden />
+            <button class="danger-button" type="button" id="clearButton">Clear</button>
+          </div>
+        </header>
+
+        <section class="view active" id="dashboard" aria-labelledby="dashboardTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Current Operation</p>
+              <h3 id="dashboardTitle">Warehouse Snapshot</h3>
+            </div>
+            <span class="status-pill" id="inventoryHealth">No Inventory</span>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric">
+              <span>Total SKUs</span>
+              <strong id="metricSkuCount">0</strong>
+            </article>
+            <article class="metric">
+              <span>Storage Bays</span>
+              <strong id="metricBayCount">0</strong>
+            </article>
+            <article class="metric">
+              <span>Units On Hand</span>
+              <strong id="metricUnits">0</strong>
+            </article>
+            <article class="metric">
+              <span>Pallets Stored</span>
+              <strong id="metricPallets">0</strong>
+            </article>
+            <article class="metric">
+              <span>Inventory Weight</span>
+              <strong id="metricWeight">0 lb</strong>
+            </article>
+            <article class="metric accent">
+              <span>Outbound 30 Days</span>
+              <strong id="metricOutbound">0</strong>
+            </article>
+          </div>
+
+          <section class="panel" aria-labelledby="globalSearchTitle">
+            <div class="panel-heading filters">
+              <h4 id="globalSearchTitle">Global Search</h4>
+              <div class="filter-row">
+                <input class="compact-search" id="globalSearch" placeholder="Search warehouses, SKUs, bays, customers" />
+                <select id="globalSearchType" aria-label="Search type">
+                  <option value="">All records</option>
+                  <option value="inventory">Inventory</option>
+                  <option value="bay">Bays</option>
+                  <option value="receipt">Inbound</option>
+                  <option value="shipment">Outbound</option>
+                  <option value="customer">Customers</option>
+                  <option value="user">Users</option>
+                  <option value="labor">Labor</option>
+                  <option value="document">Documents</option>
+                  <option value="pick">Pick Requests</option>
+                  <option value="kit">Kits</option>
+                  <option value="lease">Leases</option>
+                  <option value="tms-load">TMS Loads</option>
+                  <option value="tms-carrier">TMS Carriers</option>
+                </select>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Warehouse</th>
+                    <th>Customer</th>
+                    <th>Record</th>
+                    <th>Details</th>
+                  </tr>
+                </thead>
+                <tbody id="globalSearchTable"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <div class="content-grid two-column">
+            <section class="panel" aria-labelledby="bayUtilizationTitle">
+              <div class="panel-heading">
+                <h4 id="bayUtilizationTitle">Bay Utilization</h4>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Bay</th>
+                      <th>Zone</th>
+                      <th>Pallets</th>
+                      <th>Weight</th>
+                      <th>Capacity</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboardBayTable"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="panel" aria-labelledby="recentOutboundTitle">
+              <div class="panel-heading">
+                <h4 id="recentOutboundTitle">Recent Outbound</h4>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>SKU</th>
+                      <th>Bay</th>
+                      <th>Units</th>
+                      <th>Weight</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboardOutboundTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="warehouses" aria-labelledby="warehousesTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Network</p>
+              <h3 id="warehousesTitle">Warehouses</h3>
+            </div>
+            <button class="primary-button" type="button" data-focus-form="warehouseForm">New Warehouse</button>
+          </div>
+
+          <div class="content-grid split">
+            <section class="panel" aria-labelledby="warehouseFormTitle">
+              <div class="panel-heading">
+                <h4 id="warehouseFormTitle">Warehouse Details</h4>
+              </div>
+              <form class="data-form" id="warehouseForm">
+                <input type="hidden" id="warehouseOriginal" />
+                <label>
+                  <span>Warehouse Code</span>
+                  <input id="warehouseCode" autocomplete="off" required />
+                </label>
+                <label>
+                  <span>Name</span>
+                  <input id="warehouseName" autocomplete="off" required />
+                </label>
+                <label>
+                  <span>Address</span>
+                  <input id="warehouseAddress" autocomplete="off" />
+                </label>
+                <div class="field-row">
+                  <label>
+                    <span>City</span>
+                    <input id="warehouseCity" autocomplete="off" />
+                  </label>
+                  <label>
+                    <span>State</span>
+                    <input id="warehouseState" autocomplete="off" maxlength="2" />
+                  </label>
+                  <label>
+                    <span>ZIP</span>
+                    <input id="warehousePostal" autocomplete="off" />
+                  </label>
+                </div>
+                <div class="field-row">
+                  <label>
+                    <span>Latitude</span>
+                    <input id="warehouseLat" type="number" step="0.000001" />
+                  </label>
+                  <label>
+                    <span>Longitude</span>
+                    <input id="warehouseLng" type="number" step="0.000001" />
+                  </label>
+                  <label>
+                    <span>Status</span>
+                    <select id="warehouseStatus">
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="field-row">
+                  <label>
+                    <span>Default Storage Rate</span>
+                    <input id="warehouseStorageRate" type="number" min="0" step="0.01" />
+                  </label>
+                  <label>
+                    <span>Default Handling Rate</span>
+                    <input id="warehouseHandlingRate" type="number" min="0" step="0.01" />
+                  </label>
+                </div>
+                <label>
+                  <span>Notes</span>
+                  <textarea id="warehouseNotes" rows="3"></textarea>
+                </label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit" id="warehouseSubmitButton">Save Warehouse</button>
+                  <button class="ghost-button" type="button" id="warehouseResetButton">Reset</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="panel wide" aria-labelledby="warehouseTableTitle">
+              <div class="panel-heading">
+                <h4 id="warehouseTableTitle">Warehouse Network</h4>
+                <input class="compact-search" id="warehouseSearch" placeholder="Search warehouses" />
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Warehouse</th>
+                      <th>Location</th>
+                      <th>Status</th>
+                      <th>SKUs</th>
+                      <th>Bays</th>
+                      <th>Inventory</th>
+                      <th>Monthly Lease</th>
+                      <th class="actions-col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="warehouseTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="skus" aria-labelledby="skuTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Items</p>
+              <h3 id="skuTitle">SKU Catalog</h3>
+            </div>
+            <button class="primary-button" type="button" data-focus-form="skuForm">New SKU</button>
+          </div>
+
+          <div class="content-grid split">
+            <section class="panel" aria-labelledby="skuFormTitle">
+              <div class="panel-heading">
+                <h4 id="skuFormTitle">SKU Details</h4>
+              </div>
+              <form class="data-form" id="skuForm">
+                <input type="hidden" id="skuOriginal" />
+                <label>
+                  <span>SKU Number</span>
+                  <input id="skuNumber" name="sku" autocomplete="off" required />
+                </label>
+                <label>
+                  <span>Name</span>
+                  <input id="skuName" name="name" autocomplete="off" required />
+                </label>
+                <div class="field-row">
+                  <label>
+                    <span>Length</span>
+                    <input id="skuLength" name="length" type="number" min="0" step="0.01" />
+                  </label>
+                  <label>
+                    <span>Width</span>
+                    <input id="skuWidth" name="width" type="number" min="0" step="0.01" />
+                  </label>
+                  <label>
+                    <span>Height</span>
+                    <input id="skuHeight" name="height" type="number" min="0" step="0.01" />
+                  </label>
+                </div>
+                <label>
+                  <span>Unit Weight (lb)</span>
+                  <input id="skuWeight" name="weight" type="number" min="0" step="0.01" />
+                </label>
+                <label>
+                  <span>Warehouse Assignments</span>
+                  <select id="skuWarehouseLinks" multiple size="4"></select>
+                </label>
+                <label>
+                  <span>Notes</span>
+                  <textarea id="skuNotes" name="notes" rows="3"></textarea>
+                </label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit" id="skuSubmitButton">Add SKU</button>
+                  <button class="ghost-button" type="button" id="skuResetButton">Reset</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="panel wide" aria-labelledby="skuTableTitle">
+              <div class="panel-heading">
+                <h4 id="skuTableTitle">Catalog</h4>
+                <input class="compact-search" id="skuSearch" placeholder="Search SKUs" />
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>SKU</th>
+                      <th>Name</th>
+                      <th>Dimensions</th>
+                      <th>Weight</th>
+                      <th>Warehouses</th>
+                      <th>Notes</th>
+                      <th class="actions-col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="skuTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="bays" aria-labelledby="bayTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Storage</p>
+              <h3 id="bayTitle">Bays</h3>
+            </div>
+            <button class="primary-button" type="button" data-focus-form="bayForm">New Bay</button>
+          </div>
+
+          <div class="content-grid split">
+            <section class="panel" aria-labelledby="bayFormTitle">
+              <div class="panel-heading">
+                <h4 id="bayFormTitle">Bay Details</h4>
+              </div>
+              <form class="data-form" id="bayForm">
+                <input type="hidden" id="bayOriginal" />
+                <input type="hidden" id="bayOriginalWarehouse" />
+                <label>
+                  <span>Warehouse</span>
+                  <select id="bayWarehouse" required></select>
+                </label>
+                <label>
+                  <span>Bay Code</span>
+                  <input id="bayCode" name="code" autocomplete="off" required />
+                </label>
+                <label>
+                  <span>Zone / Aisle</span>
+                  <input id="bayZone" name="zone" autocomplete="off" required />
+                </label>
+                <div class="field-row">
+                  <label>
+                    <span>Max Pallets</span>
+                    <input id="bayMaxPallets" name="maxPallets" type="number" min="0" step="1" />
+                  </label>
+                  <label>
+                    <span>Max Weight (lb)</span>
+                    <input id="bayMaxWeight" name="maxWeight" type="number" min="0" step="0.01" />
+                  </label>
+                </div>
+                <div class="field-row">
+                  <label>
+                    <span>Length</span>
+                    <input id="bayLength" name="length" type="number" min="0" step="0.01" />
+                  </label>
+                  <label>
+                    <span>Width</span>
+                    <input id="bayWidth" name="width" type="number" min="0" step="0.01" />
+                  </label>
+                  <label>
+                    <span>Height</span>
+                    <input id="bayHeight" name="height" type="number" min="0" step="0.01" />
+                  </label>
+                </div>
+                <label>
+                  <span>Notes</span>
+                  <textarea id="bayNotes" name="notes" rows="3"></textarea>
+                </label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit" id="baySubmitButton">Add Bay</button>
+                  <button class="ghost-button" type="button" id="bayResetButton">Reset</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="panel wide" aria-labelledby="bayTableTitle">
+              <div class="panel-heading">
+                <h4 id="bayTableTitle">Bay List</h4>
+                <input class="compact-search" id="baySearch" placeholder="Search bays" />
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Bay</th>
+                      <th>Warehouse</th>
+                      <th>Zone</th>
+                      <th>Pallet Cap</th>
+                      <th>Weight Cap</th>
+                      <th>Dimensions</th>
+                      <th>Used</th>
+                      <th class="actions-col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bayTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="inventory" aria-labelledby="inventoryTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Stock</p>
+              <h3 id="inventoryTitle">Inventory By Bay</h3>
+            </div>
+          </div>
+
+          <section class="panel" aria-labelledby="inventoryTableTitle">
+            <div class="panel-heading filters">
+              <h4 id="inventoryTableTitle">Balances</h4>
+              <div class="filter-row">
+                <input class="compact-search" id="inventorySearch" placeholder="Search stock" />
+                <select id="inventoryWarehouseFilter" aria-label="Filter inventory by warehouse"></select>
+                <select id="inventorySkuFilter" aria-label="Filter inventory by SKU"></select>
+                <select id="inventoryBayFilter" aria-label="Filter inventory by bay"></select>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>SKU</th>
+                    <th>Warehouse</th>
+                    <th>Name</th>
+                    <th>Bay</th>
+                    <th>Zone</th>
+                    <th>Units</th>
+                    <th>Pallets</th>
+                    <th>Weight</th>
+                    <th>Bay Capacity</th>
+                  </tr>
+                </thead>
+                <tbody id="inventoryTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" id="receive" aria-labelledby="receiveTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Inbound</p>
+              <h3 id="receiveTitle">Receive Inventory</h3>
+            </div>
+          </div>
+
+          <div class="content-grid split">
+            <section class="panel" aria-labelledby="receiveFormTitle">
+              <div class="panel-heading">
+                <h4 id="receiveFormTitle">Receipt</h4>
+              </div>
+              <form class="data-form" id="receiveForm">
+                <label>
+                  <span>Warehouse</span>
+                  <select id="receiveWarehouse" required></select>
+                </label>
+                <label>
+                  <span>Date</span>
+                  <input id="receiveDate" type="date" required />
+                </label>
+                <label>
+                  <span>SKU</span>
+                  <select id="receiveSku" required></select>
+                </label>
+                <label>
+                  <span>Bay</span>
+                  <select id="receiveBay" required></select>
+                </label>
+                <label>
+                  <span>Customer</span>
+                  <select id="receiveCustomer"></select>
+                </label>
+                <label>
+                  <span>Assigned User</span>
+                  <select id="receiveAssignedUser"></select>
+                </label>
+                <label>
+                  <span>Supplier / Origin</span>
+                  <input id="receiveOrigin" autocomplete="off" />
+                </label>
+                <div class="field-row">
+                  <label>
+                    <span>Origin Latitude</span>
+                    <input id="receiveOriginLat" type="number" step="0.000001" />
+                  </label>
+                  <label>
+                    <span>Origin Longitude</span>
+                    <input id="receiveOriginLng" type="number" step="0.000001" />
+                  </label>
+                </div>
+                <div class="field-row">
+                  <label>
+                    <span>Units</span>
+                    <input id="receiveUnits" type="number" min="0" step="1" required />
+                  </label>
+                  <label>
+                    <span>Pallets</span>
+                    <input id="receivePallets" type="number" min="0" step="1" required />
+                  </label>
+                </div>
+                <label>
+                  <span>Reference</span>
+                  <input id="receiveReference" autocomplete="off" />
+                </label>
+                <label>
+                  <span>Notes</span>
+                  <textarea id="receiveNotes" rows="3"></textarea>
+                </label>
+                <button class="primary-button" type="submit">Receive Stock</button>
+              </form>
+            </section>
+
+            <section class="panel wide" aria-labelledby="receiptHistoryTitle">
+              <div class="panel-heading">
+                <h4 id="receiptHistoryTitle">Inbound History</h4>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Reference</th>
+                      <th>Warehouse</th>
+                      <th>SKU</th>
+                      <th>Bay</th>
+                      <th>Units</th>
+                      <th>Pallets</th>
+                      <th>Assigned</th>
+                    </tr>
+                  </thead>
+                  <tbody id="receiptTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <section class="panel map-panel" aria-labelledby="inboundMapTitle">
+            <div class="panel-heading">
+              <h4 id="inboundMapTitle">Inbound Route Map</h4>
+              <select id="inboundRouteSelect" aria-label="Select inbound route"></select>
+            </div>
+            <div class="route-layout">
+              <div class="route-map" id="inboundRouteMap"></div>
+              <div class="route-events" id="inboundRouteEvents"></div>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" id="outbound" aria-labelledby="outboundTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Shipping</p>
+              <h3 id="outboundTitle">Outbound Shipments</h3>
+            </div>
+            <span class="status-pill" id="availableStockPill">Select stock</span>
+          </div>
+
+          <div class="content-grid split">
+            <section class="panel" aria-labelledby="outboundFormTitle">
+              <div class="panel-heading">
+                <h4 id="outboundFormTitle">Shipment</h4>
+              </div>
+              <form class="data-form" id="outboundForm">
+                <label>
+                  <span>Warehouse</span>
+                  <select id="outboundWarehouse" required></select>
+                </label>
+                <label>
+                  <span>Date</span>
+                  <input id="outboundDate" type="date" required />
+                </label>
+                <label>
+                  <span>SKU</span>
+                  <select id="outboundSku" required></select>
+                </label>
+                <label>
+                  <span>Bay</span>
+                  <select id="outboundBay" required></select>
+                </label>
+                <label>
+                  <span>Customer</span>
+                  <select id="outboundCustomer"></select>
+                </label>
+                <label>
+                  <span>Assigned User</span>
+                  <select id="outboundAssignedUser"></select>
+                </label>
+                <div class="field-row">
+                  <label>
+                    <span>Units</span>
+                    <input id="outboundUnits" type="number" min="0" step="1" required />
+                  </label>
+                  <label>
+                    <span>Pallets</span>
+                    <input id="outboundPallets" type="number" min="0" step="1" required />
+                  </label>
+                </div>
+                <label>
+                  <span>Reference</span>
+                  <input id="outboundReference" autocomplete="off" />
+                </label>
+                <label>
+                  <span>Start Location</span>
+                  <input id="outboundOrigin" autocomplete="off" />
+                </label>
+                <label>
+                  <span>Destination</span>
+                  <input id="outboundDestination" autocomplete="off" />
+                </label>
+                <fieldset class="shipping-box">
+                  <legend>Carrier Shipping</legend>
+                  <div class="field-row">
+                    <label>
+                      <span>Carrier</span>
+                      <select id="outboundCarrier"></select>
+                    </label>
+                    <label>
+                      <span>Service</span>
+                      <select id="outboundService"></select>
+                    </label>
+                    <label>
+                      <span>Packages</span>
+                      <input id="outboundPackageCount" type="number" min="1" step="1" value="1" />
+                    </label>
+                  </div>
+                  <div class="field-row">
+                    <label>
+                      <span>Package Length</span>
+                      <input id="outboundPackageLength" type="number" min="0" step="0.01" />
+                    </label>
+                    <label>
+                      <span>Package Width</span>
+                      <input id="outboundPackageWidth" type="number" min="0" step="0.01" />
+                    </label>
+                    <label>
+                      <span>Package Height</span>
+                      <input id="outboundPackageHeight" type="number" min="0" step="0.01" />
+                    </label>
+                  </div>
+                  <label>
+                    <span>Ship To Contact</span>
+                    <input id="outboundShipToName" autocomplete="off" />
+                  </label>
+                  <label>
+                    <span>Ship To Address</span>
+                    <input id="outboundShipToAddress" autocomplete="off" />
+                  </label>
+                  <div class="field-row">
+                    <label>
+                      <span>City</span>
+                      <input id="outboundShipToCity" autocomplete="off" />
+                    </label>
+                    <label>
+                      <span>State</span>
+                      <input id="outboundShipToState" autocomplete="off" maxlength="2" />
+                    </label>
+                    <label>
+                      <span>ZIP</span>
+                      <input id="outboundShipToPostal" autocomplete="off" />
+                    </label>
+                  </div>
+                  <div class="field-row">
+                    <label>
+                      <span>Declared Value</span>
+                      <input id="outboundDeclaredValue" type="number" min="0" step="0.01" />
+                    </label>
+                    <div class="rate-box">
+                      <span class="status-pill" id="rateEstimatePill">No rate estimate</span>
+                    </div>
+                  </div>
+                  <button class="ghost-button" type="button" id="rateEstimateButton">Rate Estimate</button>
+                </fieldset>
+                <div class="field-row">
+                  <label>
+                    <span>Miles Traveled</span>
+                    <input id="outboundMiles" type="number" min="0" step="0.1" />
+                  </label>
+                  <label>
+                    <span>Freight Charge</span>
+                    <input id="outboundFreightCharge" type="number" min="0" step="0.01" />
+                  </label>
+                  <label>
+                    <span>Fuel Charge</span>
+                    <input id="outboundFuelCharge" type="number" min="0" step="0.01" />
+                  </label>
+                </div>
+                <fieldset class="accessorial-box">
+                  <legend>Accessorials</legend>
+                  <label class="check-charge">
+                    <input id="accessorialLiftgate" type="checkbox" />
+                    <span>Liftgate</span>
+                    <input id="accessorialLiftgateCharge" type="number" min="0" step="0.01" placeholder="Fee" />
+                  </label>
+                  <label class="check-charge">
+                    <input id="accessorialResidential" type="checkbox" />
+                    <span>Residential</span>
+                    <input id="accessorialResidentialCharge" type="number" min="0" step="0.01" placeholder="Fee" />
+                  </label>
+                  <label class="check-charge other-charge">
+                    <input id="accessorialOther" type="checkbox" />
+                    <span>Other</span>
+                    <input id="accessorialOtherName" autocomplete="off" placeholder="Name" />
+                    <input id="accessorialOtherCharge" type="number" min="0" step="0.01" placeholder="Fee" />
+                  </label>
+                </fieldset>
+                <label>
+                  <span>Notes</span>
+                  <textarea id="outboundNotes" rows="3"></textarea>
+                </label>
+                <button class="primary-button" type="submit">Ship Stock</button>
+              </form>
+            </section>
+
+            <section class="panel wide" aria-labelledby="shipmentHistoryTitle">
+              <div class="panel-heading">
+                <h4 id="shipmentHistoryTitle">Shipment History</h4>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Reference</th>
+                      <th>Warehouse</th>
+                      <th>Start</th>
+                      <th>Destination</th>
+                      <th>SKU</th>
+                      <th>Bay</th>
+                      <th>Units</th>
+                      <th>Pallets</th>
+                      <th>Weight</th>
+                      <th>Carrier</th>
+                      <th>Status</th>
+                      <th>Tracking</th>
+                      <th>Assigned</th>
+                      <th>Invoice</th>
+                      <th class="actions-col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="shipmentTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <section class="panel invoice-panel" id="invoicePanel" aria-labelledby="invoiceTitle">
+            <div class="panel-heading">
+              <h4 id="invoiceTitle">Shipment Invoice</h4>
+              <button class="ghost-button" type="button" id="printInvoiceButton">Print Invoice</button>
+            </div>
+            <div id="invoicePreview" class="invoice-preview"></div>
+          </section>
+
+          <section class="panel map-panel" aria-labelledby="outboundMapTitle">
+            <div class="panel-heading">
+              <h4 id="outboundMapTitle">Outbound Route Map</h4>
+              <select id="outboundRouteSelect" aria-label="Select outbound route"></select>
+            </div>
+            <div class="route-layout">
+              <div class="route-map" id="outboundRouteMap"></div>
+              <div class="route-events" id="outboundRouteEvents"></div>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" id="customers" aria-labelledby="customersTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Accounts</p>
+              <h3 id="customersTitle">Customers</h3>
+            </div>
+          </div>
+
+          <div class="content-grid split">
+            <section class="panel" aria-labelledby="customerFormTitle">
+              <div class="panel-heading">
+                <h4 id="customerFormTitle">Customer Setup</h4>
+              </div>
+              <form class="data-form" id="customerForm">
+                <input type="hidden" id="customerOriginal" />
+                <label>
+                  <span>Customer Code</span>
+                  <input id="customerCode" autocomplete="off" required />
+                </label>
+                <label>
+                  <span>Customer Name</span>
+                  <input id="customerName" autocomplete="off" required />
+                </label>
+                <label>
+                  <span>Contact</span>
+                  <input id="customerContact" autocomplete="off" />
+                </label>
+                <div class="field-row">
+                  <label>
+                    <span>Email</span>
+                    <input id="customerEmail" type="email" autocomplete="off" />
+                  </label>
+                  <label>
+                    <span>Phone</span>
+                    <input id="customerPhone" autocomplete="off" />
+                  </label>
+                </div>
+                <div class="field-row">
+                  <label>
+                    <span>Kit Fee</span>
+                    <input id="customerKitFee" type="number" min="0" step="0.01" />
+                  </label>
+                  <label>
+                    <span>Storage Rate</span>
+                    <input id="customerStorageRate" type="number" min="0" step="0.01" />
+                  </label>
+                </div>
+                <label>
+                  <span>Warehouse Access</span>
+                  <select id="customerWarehouseLinks" multiple size="4"></select>
+                </label>
+                <label>
+                  <span>Linked SKUs</span>
+                  <select id="customerSkuLinks" multiple size="5"></select>
+                </label>
+                <label>
+                  <span>Linked Bays</span>
+                  <select id="customerBayLinks" multiple size="5"></select>
+                </label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit" id="customerSubmitButton">Save Customer</button>
+                  <button class="ghost-button" type="button" id="customerResetButton">Reset</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="panel wide" aria-labelledby="customerTableTitle">
+              <div class="panel-heading">
+                <h4 id="customerTableTitle">Customer List</h4>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Customer</th>
+                      <th>Contact</th>
+                      <th>Warehouses</th>
+                      <th>SKUs</th>
+                      <th>Bays</th>
+                      <th>Open Kits</th>
+                      <th class="actions-col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="customerTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <section class="panel" aria-labelledby="leaseTitle">
+            <div class="panel-heading">
+              <h4 id="leaseTitle">Leased Space</h4>
+            </div>
+            <form class="data-form" id="leaseForm">
+              <input type="hidden" id="leaseOriginal" />
+              <div class="field-row">
+                <label>
+                  <span>Customer</span>
+                  <select id="leaseCustomer" required></select>
+                </label>
+                <label>
+                  <span>Warehouse</span>
+                  <select id="leaseWarehouse" required></select>
+                </label>
+                <label>
+                  <span>Status</span>
+                  <select id="leaseStatus">
+                    <option value="active">Active</option>
+                    <option value="pending">Pending</option>
+                    <option value="expired">Expired</option>
+                  </select>
+                </label>
+              </div>
+              <label>
+                <span>Leased Bays / Areas</span>
+                <select id="leaseBayLinks" multiple size="5"></select>
+              </label>
+              <div class="field-row">
+                <label>
+                  <span>Start Date</span>
+                  <input id="leaseStartDate" type="date" />
+                </label>
+                <label>
+                  <span>End Date</span>
+                  <input id="leaseEndDate" type="date" />
+                </label>
+                <label>
+                  <span>Monthly Rate</span>
+                  <input id="leaseMonthlyRate" type="number" min="0" step="0.01" />
+                </label>
+              </div>
+              <div class="field-row">
+                <label>
+                  <span>Pallet Allowance</span>
+                  <input id="leasePalletAllowance" type="number" min="0" step="1" />
+                </label>
+                <label>
+                  <span>Sq Ft Allowance</span>
+                  <input id="leaseSqftAllowance" type="number" min="0" step="0.01" />
+                </label>
+                <label>
+                  <span>Weight Allowance</span>
+                  <input id="leaseWeightAllowance" type="number" min="0" step="0.01" />
+                </label>
+              </div>
+              <div class="field-row">
+                <label>
+                  <span>Pallet Overage</span>
+                  <input id="leasePalletOverageRate" type="number" min="0" step="0.01" />
+                </label>
+                <label>
+                  <span>Sq Ft Overage</span>
+                  <input id="leaseSqftOverageRate" type="number" min="0" step="0.01" />
+                </label>
+                <label>
+                  <span>Weight Overage</span>
+                  <input id="leaseWeightOverageRate" type="number" min="0" step="0.01" />
+                </label>
+              </div>
+              <label>
+                <span>Notes</span>
+                <textarea id="leaseNotes" rows="3"></textarea>
+              </label>
+              <div class="form-actions">
+                <button class="primary-button" type="submit" id="leaseSubmitButton">Save Lease</button>
+                <button class="ghost-button" type="button" id="leaseResetButton">Reset</button>
+              </div>
+            </form>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Customer</th>
+                    <th>Warehouse</th>
+                    <th>Leased Bays</th>
+                    <th>Monthly</th>
+                    <th>Usage</th>
+                    <th>Overage</th>
+                    <th>Status</th>
+                    <th class="actions-col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="leaseTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" id="labor" aria-labelledby="laborTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">People</p>
+              <h3 id="laborTitle">Staff & Labor</h3>
+            </div>
+            <span class="status-pill" id="laborHealthPill">Ready</span>
+          </div>
+
+          <div class="metric-grid report-metrics">
+            <article class="metric">
+              <span>Active Staff</span>
+              <strong id="laborActiveUsers">0</strong>
+            </article>
+            <article class="metric">
+              <span>Labor Hours</span>
+              <strong id="laborTotalHours">0</strong>
+            </article>
+            <article class="metric">
+              <span>Billable Labor</span>
+              <strong id="laborBillableTotal">$0.00</strong>
+            </article>
+            <article class="metric accent">
+              <span>Avg Completion</span>
+              <strong id="laborAvgCompletion">0 min</strong>
+            </article>
+          </div>
+
+          <div class="content-grid split">
+            <section class="panel" aria-labelledby="userFormTitle">
+              <div class="panel-heading">
+                <h4 id="userFormTitle">User / Staff Setup</h4>
+              </div>
+              <form class="data-form" id="userForm">
+                <input type="hidden" id="userOriginal" />
+                <label>
+                  <span>Name</span>
+                  <input id="userName" autocomplete="off" required />
+                </label>
+                <label>
+                  <span>Login User ID</span>
+                  <input id="userAuthId" autocomplete="off" placeholder="Optional Clerk/auth ID" />
+                </label>
+                <div class="field-row">
+                  <label>
+                    <span>Role</span>
+                    <select id="userRole">
+                      <option value="operator">Operator</option>
+                      <option value="admin">Admin</option>
+                      <option value="viewer">Viewer</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Status</span>
+                    <select id="userStatus">
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+                  </label>
+                </div>
+                <label>
+                  <span>Warehouse Access</span>
+                  <select id="userWarehouseLinks" multiple size="4"></select>
+                </label>
+                <label>
+                  <span>Contact</span>
+                  <input id="userContact" autocomplete="off" />
+                </label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit" id="userSubmitButton">Save User</button>
+                  <button class="ghost-button" type="button" id="userResetButton">Reset</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="panel wide" aria-labelledby="laborEntryTitle">
+              <div class="panel-heading">
+                <h4 id="laborEntryTitle">Labor Entry</h4>
+              </div>
+              <form class="data-form" id="laborForm">
+                <div class="field-row">
+                  <label>
+                    <span>User</span>
+                    <select id="laborUser" required></select>
+                  </label>
+                  <label>
+                    <span>Task</span>
+                    <select id="laborTaskType"></select>
+                  </label>
+                  <label>
+                    <span>Order Type</span>
+                    <select id="laborOrderType"></select>
+                  </label>
+                </div>
+                <label>
+                  <span>Order / Load</span>
+                  <select id="laborOrderId"></select>
+                </label>
+                <div class="field-row">
+                  <label>
+                    <span>Started</span>
+                    <input id="laborStart" type="datetime-local" />
+                  </label>
+                  <label>
+                    <span>Ended</span>
+                    <input id="laborEnd" type="datetime-local" />
+                  </label>
+                  <label>
+                    <span>Hours</span>
+                    <input id="laborHours" type="number" min="0" step="0.01" />
+                  </label>
+                </div>
+                <div class="field-row">
+                  <label>
+                    <span>Rate / Hour</span>
+                    <input id="laborRate" type="number" min="0" step="0.01" />
+                  </label>
+                  <label class="checkbox-option inline-checkbox">
+                    <input id="laborBillable" type="checkbox" checked />
+                    <span>Billable</span>
+                  </label>
+                </div>
+                <label>
+                  <span>Notes</span>
+                  <textarea id="laborNotes" rows="3"></textarea>
+                </label>
+                <button class="primary-button" type="submit">Log Labor</button>
+              </form>
+            </section>
+          </div>
+
+          <div class="content-grid two-column">
+            <section class="panel" aria-labelledby="userTableTitle">
+              <div class="panel-heading">
+                <h4 id="userTableTitle">Staff Directory</h4>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th>Warehouses</th>
+                      <th>Assignments</th>
+                      <th class="actions-col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="userTable"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="panel" aria-labelledby="laborTableTitle">
+              <div class="panel-heading filters">
+                <h4 id="laborTableTitle">Labor Log</h4>
+                <div class="filter-row">
+                  <select id="laborFilterUser" aria-label="Filter labor by user"></select>
+                  <select id="laborFilterTask" aria-label="Filter labor by task"></select>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Task</th>
+                      <th>Order</th>
+                      <th>Hours</th>
+                      <th>Billable</th>
+                      <th>Completed</th>
+                    </tr>
+                  </thead>
+                  <tbody id="laborTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="documents" aria-labelledby="documentsTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Waiting Loads</p>
+              <h3 id="documentsTitle">Document Staging</h3>
+            </div>
+            <span class="status-pill" id="documentsHealthPill">Soft warnings</span>
+          </div>
+
+          <div class="metric-grid report-metrics">
+            <article class="metric">
+              <span>Waiting Loads</span>
+              <strong id="docWaitingLoads">0</strong>
+            </article>
+            <article class="metric">
+              <span>Missing Docs</span>
+              <strong id="docMissingLoads">0</strong>
+            </article>
+            <article class="metric">
+              <span>In Review</span>
+              <strong id="docInReviewLoads">0</strong>
+            </article>
+            <article class="metric accent">
+              <span>Avg Doc Wait</span>
+              <strong id="docAvgWait">0 days</strong>
+            </article>
+          </div>
+
+          <div class="content-grid split">
+            <section class="panel" aria-labelledby="documentStageFormTitle">
+              <div class="panel-heading">
+                <h4 id="documentStageFormTitle">Stage Load Docs</h4>
+              </div>
+              <form class="data-form" id="documentStageForm">
+                <div class="field-row">
+                  <label>
+                    <span>Warehouse</span>
+                    <select id="documentWarehouse" required></select>
+                  </label>
+                  <label>
+                    <span>Customer</span>
+                    <select id="documentCustomer"></select>
+                  </label>
+                </div>
+                <div class="field-row">
+                  <label>
+                    <span>Load Type</span>
+                    <select id="documentOrderType"></select>
+                  </label>
+                  <label>
+                    <span>Order / Load</span>
+                    <select id="documentOrderId"></select>
+                  </label>
+                </div>
+                <div class="field-row">
+                  <label>
+                    <span>Status</span>
+                    <select id="documentStatus">
+                      <option value="waiting">Waiting</option>
+                      <option value="missing_docs">Missing Docs</option>
+                      <option value="received">Received</option>
+                      <option value="in_review">In Review</option>
+                      <option value="approved">Approved</option>
+                      <option value="rejected">Rejected</option>
+                      <option value="released">Released</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Assigned User</span>
+                    <select id="documentAssignedUser"></select>
+                  </label>
+                </div>
+                <label>
+                  <span>Required Docs</span>
+                  <input id="documentRequiredDocs" autocomplete="off" placeholder="BOL, POD, invoice" />
+                </label>
+                <label>
+                  <span>Received Docs / File Names</span>
+                  <input id="documentReceivedDocs" autocomplete="off" placeholder="BOL-1001.pdf" />
+                </label>
+                <label>
+                  <span>Notes</span>
+                  <textarea id="documentNotes" rows="3"></textarea>
+                </label>
+                <button class="primary-button" type="submit">Stage Documents</button>
+              </form>
+            </section>
+
+            <section class="panel wide" aria-labelledby="documentQueueTitle">
+              <div class="panel-heading filters">
+                <h4 id="documentQueueTitle">Staging Queue</h4>
+                <div class="filter-row">
+                  <select id="documentFilterStatus" aria-label="Filter documents by status"></select>
+                  <select id="documentFilterWarehouse" aria-label="Filter documents by warehouse"></select>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Load</th>
+                      <th>Warehouse</th>
+                      <th>Customer</th>
+                      <th>Status</th>
+                      <th>Required</th>
+                      <th>Received</th>
+                      <th>Assigned</th>
+                      <th>Wait</th>
+                      <th class="actions-col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="documentStageTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="picks" aria-labelledby="picksTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Customer Work</p>
+              <h3 id="picksTitle">Pick Requests</h3>
+            </div>
+            <span class="status-pill" id="pickHealthPill">Queue Ready</span>
+          </div>
+
+          <div class="metric-grid report-metrics">
+            <article class="metric">
+              <span>Open Requests</span>
+              <strong id="pickOpenRequests">0</strong>
+            </article>
+            <article class="metric">
+              <span>Reserved Units</span>
+              <strong id="pickReservedUnits">0</strong>
+            </article>
+            <article class="metric">
+              <span>Ready To Pack</span>
+              <strong id="pickReadyToPack">0</strong>
+            </article>
+            <article class="metric accent">
+              <span>Exceptions</span>
+              <strong id="pickExceptions">0</strong>
+            </article>
+          </div>
+
+          <div class="content-grid split">
+            <section class="panel" aria-labelledby="pickRequestFormTitle">
+              <div class="panel-heading">
+                <h4 id="pickRequestFormTitle">Request Entry</h4>
+              </div>
+              <form class="data-form pick-request-form" id="pickRequestForm">
+                <div class="field-row">
+                  <label>
+                    <span>Source</span>
+                    <select id="pickSource">
+                      <option value="customer">Customer Portal</option>
+                      <option value="internal">Internal Entry</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Customer</span>
+                    <select id="pickCustomer" required></select>
+                  </label>
+                  <label>
+                    <span>Warehouse</span>
+                    <select id="pickWarehouse" required></select>
+                  </label>
+                </div>
+                <div class="field-row">
+                  <label>
+                    <span>Priority</span>
+                    <select id="pickPriority">
+                      <option value="standard">Standard</option>
+                      <option value="rush">Rush</option>
+                      <option value="hold">Hold</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Requested Ship Date</span>
+                    <input id="pickRequestedShipDate" type="date" />
+                  </label>
+                  <label>
+                    <span>Assigned Picker</span>
+                    <input id="pickAssignedPicker" autocomplete="off" />
+                  </label>
+                  <label>
+                    <span>Assigned User</span>
+                    <select id="pickAssignedUser"></select>
+                  </label>
+                </div>
+                <label>
+                  <span>Destination</span>
+                  <input id="pickDestination" autocomplete="off" />
+                </label>
+                <div class="field-row">
+                  <label>
+                    <span>Carrier Preference</span>
+                    <select id="pickCarrierPreference">
+                      <option value="">No preference</option>
+                      <option value="ups">UPS</option>
+                      <option value="fedex">FedEx</option>
+                      <option value="usps">USPS</option>
+                      <option value="customer">Customer Routed</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Pick Fee</span>
+                    <input id="pickFee" type="number" min="0" step="0.01" />
+                  </label>
+                  <label>
+                    <span>Labor Charge</span>
+                    <input id="pickLaborCharge" type="number" min="0" step="0.01" />
+                  </label>
+                </div>
+                <label>
+                  <span>Pick Lines</span>
+                  <textarea id="pickLines" rows="5" placeholder="SKU, quantity, optional bay"></textarea>
+                </label>
+                <label>
+                  <span>Attachments</span>
+                  <input id="pickAttachments" autocomplete="off" placeholder="BOL.pdf, order.csv" />
+                </label>
+                <label>
+                  <span>Notes</span>
+                  <textarea id="pickNotes" rows="3"></textarea>
+                </label>
+                <button class="primary-button" type="submit">Submit Pick Request</button>
+              </form>
+            </section>
+
+            <section class="panel wide" aria-labelledby="customerPortalTitle">
+              <div class="panel-heading filters">
+                <h4 id="customerPortalTitle">Customer Portal</h4>
+                <div class="filter-row">
+                  <select id="pickPortalCustomer" aria-label="Customer portal account"></select>
+                  <select id="pickPortalWarehouse" aria-label="Customer portal warehouse"></select>
+                </div>
+              </div>
+              <div class="mini-metrics portal-metrics">
+                <div>
+                  <span>Available SKUs</span>
+                  <strong id="portalSkuCount">0</strong>
+                </div>
+                <div>
+                  <span>Open Requests</span>
+                  <strong id="portalOpenPicks">0</strong>
+                </div>
+                <div>
+                  <span>Reserved Units</span>
+                  <strong id="portalReservedUnits">0</strong>
+                </div>
+                <div>
+                  <span>Documents</span>
+                  <strong id="portalDocumentCount">0</strong>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Reference</th>
+                      <th>Warehouse</th>
+                      <th>Status</th>
+                      <th>Ship Date</th>
+                      <th>Lines</th>
+                      <th>Billing</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pickPortalTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <section class="panel" aria-labelledby="pickQueueTitle">
+            <div class="panel-heading filters">
+              <h4 id="pickQueueTitle">Operator Queue</h4>
+              <div class="filter-row">
+                <select id="pickQueueStatus" aria-label="Filter pick queue by status"></select>
+                <select id="pickQueueCustomer" aria-label="Filter pick queue by customer"></select>
+                <select id="pickQueueWarehouse" aria-label="Filter pick queue by warehouse"></select>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Reference</th>
+                    <th>Customer</th>
+                    <th>Warehouse</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Picker</th>
+                    <th>Lines</th>
+                    <th>Reserved</th>
+                    <th>Billing</th>
+                    <th class="actions-col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="pickQueueTable"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel pick-ticket-panel" id="pickTicketPanel" aria-labelledby="pickTicketTitle">
+            <div class="panel-heading">
+              <h4 id="pickTicketTitle">Pick Ticket</h4>
+              <button class="ghost-button" type="button" id="printPickTicketButton">Print Ticket</button>
+            </div>
+            <div id="pickTicketPreview" class="pick-ticket-preview"></div>
+          </section>
+        </section>
+
+        <section class="view" id="kitting" aria-labelledby="kittingTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Production</p>
+              <h3 id="kittingTitle">Kitting</h3>
+            </div>
+          </div>
+
+          <div class="content-grid split">
+            <section class="panel" aria-labelledby="kitTemplateTitle">
+              <div class="panel-heading">
+                <h4 id="kitTemplateTitle">Standard Kit</h4>
+              </div>
+              <form class="data-form" id="kitTemplateForm">
+                <input type="hidden" id="kitTemplateOriginal" />
+                <label>
+                  <span>Warehouse</span>
+                  <select id="kitTemplateWarehouse" required></select>
+                </label>
+                <label>
+                  <span>Customer</span>
+                  <select id="kitTemplateCustomer" required></select>
+                </label>
+                <label>
+                  <span>Kit Name</span>
+                  <input id="kitTemplateName" autocomplete="off" required />
+                </label>
+                <label>
+                  <span>Kit SKUs</span>
+                  <textarea id="kitTemplateLines" rows="5" placeholder="SKU, quantity"></textarea>
+                </label>
+                <button class="primary-button" type="submit">Save Standard Kit</button>
+              </form>
+            </section>
+
+            <section class="panel wide" aria-labelledby="kitOrderTitle">
+              <div class="panel-heading">
+                <h4 id="kitOrderTitle">Custom Kit Order</h4>
+              </div>
+              <form class="data-form" id="kitOrderForm">
+                <div class="field-row">
+                  <label>
+                    <span>Warehouse</span>
+                    <select id="kitOrderWarehouse" required></select>
+                  </label>
+                  <label>
+                    <span>Customer</span>
+                    <select id="kitOrderCustomer" required></select>
+                  </label>
+                  <label>
+                    <span>Standard Kit</span>
+                    <select id="kitOrderTemplate"></select>
+                  </label>
+                  <label>
+                    <span>Order Ref</span>
+                    <input id="kitOrderReference" autocomplete="off" />
+                  </label>
+                </div>
+                <label>
+                  <span>Custom Lines</span>
+                  <textarea id="kitOrderLines" rows="5" placeholder="SKU, quantity"></textarea>
+                </label>
+                <button class="primary-button" type="submit">Submit Kit Request</button>
+              </form>
+            </section>
+          </div>
+
+          <div class="content-grid two-column">
+            <section class="panel" aria-labelledby="standardKitsTitle">
+              <div class="panel-heading">
+                <h4 id="standardKitsTitle">Standard Kits</h4>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Customer</th>
+                      <th>Warehouse</th>
+                      <th>Kit</th>
+                      <th>Lines</th>
+                      <th class="actions-col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="kitTemplateTable"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="panel" aria-labelledby="kitQueueTitle">
+              <div class="panel-heading">
+                <h4 id="kitQueueTitle">Review Queue</h4>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Ref</th>
+                      <th>Customer</th>
+                      <th>Warehouse</th>
+                      <th>Status</th>
+                      <th>Reserved</th>
+                      <th class="actions-col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="kitOrderTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="reports" aria-labelledby="reportsTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Outbound</p>
+              <h3 id="reportsTitle">Shipment Reports</h3>
+            </div>
+          </div>
+
+          <section class="panel" aria-labelledby="reportFiltersTitle">
+            <div class="panel-heading filters">
+              <h4 id="reportFiltersTitle">Filters</h4>
+              <div class="filter-row">
+                <label class="inline-filter">
+                  <span>From</span>
+                  <input id="reportFrom" type="date" />
+                </label>
+                <label class="inline-filter">
+                  <span>To</span>
+                  <input id="reportTo" type="date" />
+                </label>
+                <select id="reportSku" aria-label="Filter report by SKU"></select>
+                <select id="reportWarehouse" aria-label="Filter report by warehouse"></select>
+                <select id="reportBay" aria-label="Filter report by bay"></select>
+              </div>
+            </div>
+          </section>
+
+          <div class="metric-grid report-metrics">
+            <article class="metric">
+              <span>Shipments</span>
+              <strong id="reportShipments">0</strong>
+            </article>
+            <article class="metric">
+              <span>Units Shipped</span>
+              <strong id="reportUnits">0</strong>
+            </article>
+            <article class="metric">
+              <span>Pallets Shipped</span>
+              <strong id="reportPallets">0</strong>
+            </article>
+            <article class="metric accent">
+              <span>Total Weight</span>
+              <strong id="reportWeight">0 lb</strong>
+            </article>
+            <article class="metric accent">
+              <span>Total Charges</span>
+              <strong id="reportCharges">$0.00</strong>
+            </article>
+          </div>
+
+          <section class="panel" aria-labelledby="reportTableTitle">
+            <div class="panel-heading">
+              <h4 id="reportTableTitle">Outbound Activity</h4>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Reference</th>
+                      <th>Warehouse</th>
+                      <th>Destination</th>
+                    <th>SKU</th>
+                    <th>Name</th>
+                    <th>Bay</th>
+                    <th>Carrier</th>
+                    <th>Tracking</th>
+                    <th>Units</th>
+                    <th>Pallets</th>
+                    <th>Weight</th>
+                    <th>Invoice Total</th>
+                  </tr>
+                </thead>
+                <tbody id="reportTable"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="customReportsTitle">
+            <div class="panel-heading">
+              <h4 id="customReportsTitle">Custom Reports</h4>
+            </div>
+            <form class="data-form custom-report-form" id="customReportForm">
+              <div class="field-row">
+                <label>
+                  <span>Report Name</span>
+                  <input id="customReportName" autocomplete="off" required />
+                </label>
+                <label>
+                  <span>Data Source</span>
+                  <select id="customReportSource">
+                    <option value="shipments">Outbound Shipments</option>
+                    <option value="inventory">Inventory Balances</option>
+                    <option value="receipts">Inbound Receipts</option>
+                    <option value="picks">Pick Requests</option>
+                    <option value="labor">Labor Entries</option>
+                    <option value="documents">Document Staging</option>
+                    <option value="users">Users</option>
+                    <option value="leases">Lease Charges</option>
+                    <option value="tmsLoads">TMS Loads</option>
+                    <option value="tmsCustomerLoads">TMS Customer Loads</option>
+                    <option value="tmsCarrierRates">TMS Carrier Rates</option>
+                    <option value="tmsClientRates">TMS Client Rates</option>
+                  </select>
+                </label>
+                <label>
+                  <span>SKU</span>
+                  <select id="customReportSku"></select>
+                </label>
+              </div>
+              <div class="field-row">
+                <label>
+                  <span>Warehouse</span>
+                  <select id="customReportWarehouse"></select>
+                </label>
+                <label>
+                  <span>Bay</span>
+                  <select id="customReportBay"></select>
+                </label>
+                <label>
+                  <span>From</span>
+                  <input id="customReportFrom" type="date" />
+                </label>
+                <label>
+                  <span>To</span>
+                  <input id="customReportTo" type="date" />
+                </label>
+              </div>
+              <div>
+                <p class="form-label">Columns</p>
+                <div class="checkbox-grid" id="customReportFields"></div>
+              </div>
+              <div class="form-actions">
+                <button class="primary-button" type="submit">Save & Run Report</button>
+                <button class="ghost-button" type="button" id="runCustomReportButton">Run Preview</button>
+              </div>
+            </form>
+          </section>
+
+          <div class="content-grid two-column">
+            <section class="panel" aria-labelledby="savedReportsTitle">
+              <div class="panel-heading">
+                <h4 id="savedReportsTitle">Saved Reports</h4>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Source</th>
+                      <th>Rows</th>
+                      <th class="actions-col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="savedReportsTable"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="panel" aria-labelledby="customReportSummaryTitle">
+              <div class="panel-heading">
+                <h4 id="customReportSummaryTitle">Custom Report Summary</h4>
+              </div>
+              <div class="mini-metrics">
+                <div>
+                  <span>Rows</span>
+                  <strong id="customReportRows">0</strong>
+                </div>
+                <div>
+                  <span>Units</span>
+                  <strong id="customReportUnits">0</strong>
+                </div>
+                <div>
+                  <span>Pallets</span>
+                  <strong id="customReportPallets">0</strong>
+                </div>
+                <div>
+                  <span>Value</span>
+                  <strong id="customReportValue">$0.00</strong>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <section class="panel" aria-labelledby="customReportOutputTitle">
+            <div class="panel-heading">
+              <h4 id="customReportOutputTitle">Custom Report Output</h4>
+              <span class="status-pill" id="activeCustomReportName">No report selected</span>
+            </div>
+            <div class="table-wrap">
+              <table id="customReportTable">
+                <thead id="customReportHead"></thead>
+                <tbody id="customReportBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="view admin-view" id="admin" aria-labelledby="adminTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Admin Only</p>
+              <h3 id="adminTitle">Financial Snapshot</h3>
+            </div>
+            <span class="status-pill" id="adminAccessPill">Admin</span>
+          </div>
+
+          <section class="panel" id="adminLockedPanel">
+            <div class="locked-state">
+              <h4>Admin access required</h4>
+              <p>Switch to an admin role in Settings to view financials in this local prototype.</p>
+            </div>
+          </section>
+
+          <div id="adminFinanceContent">
+            <div class="admin-tabs" role="tablist" aria-label="Admin sections">
+              <button class="admin-tab active" type="button" data-admin-tab="finance">Finance</button>
+              <button class="admin-tab" type="button" data-admin-tab="kpis">KPIs</button>
+              <button class="admin-tab" type="button" data-admin-tab="labor">Labor</button>
+              <button class="admin-tab" type="button" data-admin-tab="documents">Documents</button>
+              <button class="admin-tab" type="button" data-admin-tab="audit">Audit</button>
+            </div>
+
+            <div class="admin-panel active" data-admin-panel="finance">
+            <section class="panel" aria-labelledby="adminFinanceFiltersTitle">
+              <div class="panel-heading filters">
+                <h4 id="adminFinanceFiltersTitle">Finance Filters</h4>
+                <div class="filter-row">
+                  <select id="adminWarehouseFilter" aria-label="Filter finance by warehouse"></select>
+                  <select id="adminCustomerFilter" aria-label="Filter finance by customer"></select>
+                  <label class="inline-filter">
+                    <span>From</span>
+                    <input id="adminFrom" type="date" />
+                  </label>
+                  <label class="inline-filter">
+                    <span>To</span>
+                    <input id="adminTo" type="date" />
+                  </label>
+                  <button class="ghost-button" type="button" id="exportFinanceExcelButton">Export Excel</button>
+                  <button class="ghost-button" type="button" id="exportFinancePdfButton">PDF Packet</button>
+                </div>
+              </div>
+            </section>
+
+            <div class="metric-grid report-metrics">
+              <article class="metric">
+                <span>Revenue</span>
+                <strong id="adminRevenue">$0.00</strong>
+              </article>
+              <article class="metric">
+                <span>Carrier Costs</span>
+                <strong id="adminCarrierCosts">$0.00</strong>
+              </article>
+              <article class="metric">
+                <span>Kit Charges</span>
+                <strong id="adminKitCharges">$0.00</strong>
+              </article>
+              <article class="metric">
+                <span>Pick Charges</span>
+                <strong id="adminPickCharges">$0.00</strong>
+              </article>
+              <article class="metric">
+                <span>Labor Charges</span>
+                <strong id="adminLaborCharges">$0.00</strong>
+              </article>
+              <article class="metric">
+                <span>Lease Charges</span>
+                <strong id="adminLeaseCharges">$0.00</strong>
+              </article>
+              <article class="metric">
+                <span>Accessorials</span>
+                <strong id="adminAccessorials">$0.00</strong>
+              </article>
+              <article class="metric">
+                <span>Open Invoices</span>
+                <strong id="adminOpenInvoices">0</strong>
+              </article>
+              <article class="metric accent">
+                <span>Estimated Margin</span>
+                <strong id="adminMargin">$0.00</strong>
+              </article>
+            </div>
+
+            <section class="panel" aria-labelledby="adminPickControlsTitle">
+              <div class="panel-heading">
+                <h4 id="adminPickControlsTitle">Pick Controls</h4>
+              </div>
+              <form class="data-form" id="pickSettingsForm">
+                <div class="field-row">
+                  <label>
+                    <span>Default Pick Fee</span>
+                    <input id="pickSettingDefaultFee" type="number" min="0" step="0.01" />
+                  </label>
+                  <label>
+                    <span>Labor Rate / Hour</span>
+                    <input id="pickSettingLaborRate" type="number" min="0" step="0.01" />
+                  </label>
+                  <label>
+                    <span>Rush Multiplier</span>
+                    <input id="pickSettingRushMultiplier" type="number" min="1" step="0.01" />
+                  </label>
+                </div>
+                <div class="checkbox-grid">
+                  <label class="checkbox-option">
+                    <input id="pickSettingRequireApproval" type="checkbox" />
+                    <span>Require approval before reservation</span>
+                  </label>
+                  <label class="checkbox-option">
+                    <input id="pickSettingShowExceptions" type="checkbox" />
+                    <span>Show exceptions to customers</span>
+                  </label>
+                </div>
+                <button class="primary-button" type="submit">Save Pick Controls</button>
+              </form>
+            </section>
+
+            <section class="panel" aria-labelledby="adminCustomerFinanceTitle">
+              <div class="panel-heading">
+                <h4 id="adminCustomerFinanceTitle">Customer Billing</h4>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Customer</th>
+                      <th>Warehouse</th>
+                      <th>Shipments</th>
+                      <th>Shipment Revenue</th>
+                      <th>Carrier Costs</th>
+                      <th>Accessorials</th>
+                      <th>Kit Charges</th>
+                      <th>Pick Charges</th>
+                      <th>Labor Charges</th>
+                      <th>Lease Charges</th>
+                      <th>Open AR</th>
+                      <th>Margin</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminFinanceTable"></tbody>
+                </table>
+              </div>
+            </section>
+            </div>
+
+            <div class="admin-panel" data-admin-panel="kpis">
+              <div class="metric-grid report-metrics">
+                <article class="metric">
+                  <span>Inbound Loads</span>
+                  <strong id="kpiInboundLoads">0</strong>
+                </article>
+                <article class="metric">
+                  <span>Outbound Loads</span>
+                  <strong id="kpiOutboundLoads">0</strong>
+                </article>
+                <article class="metric">
+                  <span>Open Picks</span>
+                  <strong id="kpiOpenPicks">0</strong>
+                </article>
+                <article class="metric">
+                  <span>Staged Loads</span>
+                  <strong id="kpiStagedLoads">0</strong>
+                </article>
+                <article class="metric">
+                  <span>Labor Hours</span>
+                  <strong id="kpiLaborHours">0</strong>
+                </article>
+                <article class="metric">
+                  <span>Avg Completion</span>
+                  <strong id="kpiAvgCompletion">0 min</strong>
+                </article>
+                <article class="metric">
+                  <span>Shipments / Labor Hour</span>
+                  <strong id="kpiShipmentsPerHour">0</strong>
+                </article>
+                <article class="metric accent">
+                  <span>Exception Rate</span>
+                  <strong id="kpiExceptionRate">0%</strong>
+                </article>
+              </div>
+              <section class="panel" aria-labelledby="adminKpiTableTitle">
+                <div class="panel-heading">
+                  <h4 id="adminKpiTableTitle">Customer / Warehouse KPI Breakdown</h4>
+                </div>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Customer</th>
+                        <th>Warehouse</th>
+                        <th>Inbound</th>
+                        <th>Outbound</th>
+                        <th>Picks</th>
+                        <th>Staged Docs</th>
+                        <th>Labor Hours</th>
+                        <th>Avg Completion</th>
+                        <th>Margin</th>
+                      </tr>
+                    </thead>
+                    <tbody id="adminKpiTable"></tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+
+            <div class="admin-panel" data-admin-panel="labor">
+              <section class="panel" aria-labelledby="adminLaborTitle">
+                <div class="panel-heading">
+                  <h4 id="adminLaborTitle">Labor Detail</h4>
+                </div>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Task</th>
+                        <th>Order</th>
+                        <th>Hours</th>
+                        <th>Billable</th>
+                        <th>Cost</th>
+                        <th>Notes</th>
+                      </tr>
+                    </thead>
+                    <tbody id="adminLaborTable"></tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+
+            <div class="admin-panel" data-admin-panel="documents">
+              <section class="panel" aria-labelledby="adminDocumentsTitle">
+                <div class="panel-heading">
+                  <h4 id="adminDocumentsTitle">Document Staging Detail</h4>
+                </div>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Load</th>
+                        <th>Customer</th>
+                        <th>Warehouse</th>
+                        <th>Status</th>
+                        <th>Required</th>
+                        <th>Received</th>
+                        <th>Assigned</th>
+                        <th>Wait</th>
+                      </tr>
+                    </thead>
+                    <tbody id="adminDocumentsTable"></tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+
+            <div class="admin-panel" data-admin-panel="audit">
+              <section class="panel" aria-labelledby="adminAuditTitle">
+                <div class="panel-heading">
+                  <h4 id="adminAuditTitle">Audit Trail</h4>
+                </div>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                        <th>Detail</th>
+                      </tr>
+                    </thead>
+                    <tbody id="adminAuditTable"></tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="tms-dashboard" aria-labelledby="tmsDashboardTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Transportation</p>
+              <h3 id="tmsDashboardTitle">TMS Command Center</h3>
+            </div>
+            <span class="status-pill" id="tmsHealthPill">No loads</span>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric"><span>Open Loads</span><strong id="tmsOpenLoads">0</strong></article>
+            <article class="metric"><span>Quoted</span><strong id="tmsQuotedLoads">0</strong></article>
+            <article class="metric"><span>Tendered</span><strong id="tmsTenderedLoads">0</strong></article>
+            <article class="metric"><span>In Transit</span><strong id="tmsTransitLoads">0</strong></article>
+            <article class="metric"><span>Revenue</span><strong id="tmsRevenue">$0.00</strong></article>
+            <article class="metric accent"><span>Margin</span><strong id="tmsMargin">$0.00</strong></article>
+          </div>
+
+          <div class="content-grid two-column">
+            <section class="panel" aria-labelledby="tmsTopLanesTitle">
+              <div class="panel-heading"><h4 id="tmsTopLanesTitle">Top Lanes</h4></div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Lane</th><th>Loads</th><th>Revenue</th><th>Margin</th></tr>
+                  </thead>
+                  <tbody id="tmsTopLaneTable"></tbody>
+                </table>
+              </div>
+            </section>
+            <section class="panel" aria-labelledby="tmsActiveLoadsTitle">
+              <div class="panel-heading"><h4 id="tmsActiveLoadsTitle">Active Loads</h4></div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Load</th><th>Customer</th><th>Status</th><th>Mode</th><th>Charge</th></tr>
+                  </thead>
+                  <tbody id="tmsActiveLoadTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="tms-orders" aria-labelledby="tmsOrdersTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Order Entry</p>
+              <h3 id="tmsOrdersTitle">Transportation Orders</h3>
+            </div>
+          </div>
+          <div class="content-grid split">
+            <section class="panel" aria-labelledby="tmsOrderFormTitle">
+              <div class="panel-heading"><h4 id="tmsOrderFormTitle">New Order</h4></div>
+              <form class="data-form" id="tmsOrderForm">
+                <div class="field-row">
+                  <label><span>Order Type</span><select id="tmsOrderType"><option value="wms">WMS-linked</option><option value="external">External</option></select></label>
+                  <label><span>Reference</span><input id="tmsOrderReference" autocomplete="off" required /></label>
+                </div>
+                <div class="field-row">
+                  <label><span>Customer</span><select id="tmsOrderCustomer" required></select></label>
+                  <label><span>Warehouse</span><select id="tmsOrderWarehouse" required></select></label>
+                </div>
+                <div class="field-row">
+                  <label><span>Mode</span><select id="tmsOrderMode"></select></label>
+                  <label><span>Linked WMS Shipment</span><select id="tmsOrderShipment"></select></label>
+                </div>
+                <label><span>Origin</span><input id="tmsOrderOrigin" autocomplete="off" /></label>
+                <label><span>Destination</span><input id="tmsOrderDestination" autocomplete="off" /></label>
+                <button class="primary-button" type="submit">Create Transportation Order</button>
+              </form>
+            </section>
+
+            <section class="panel wide" aria-labelledby="tmsOrderTableTitle">
+              <div class="panel-heading"><h4 id="tmsOrderTableTitle">Order Queue</h4></div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Reference</th><th>Type</th><th>Customer</th><th>Warehouse</th><th>Status</th><th>Lane</th><th>Charge</th><th class="actions-col">Actions</th></tr>
+                  </thead>
+                  <tbody id="tmsOrderTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="tms-loads" aria-labelledby="tmsLoadsTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Load Control</p>
+              <h3 id="tmsLoadsTitle">Loads</h3>
+            </div>
+          </div>
+
+          <div class="content-grid split">
+            <section class="panel" aria-labelledby="tmsLoadFormTitle">
+              <div class="panel-heading"><h4 id="tmsLoadFormTitle">Load Builder</h4></div>
+              <form class="data-form" id="tmsLoadForm">
+                <input type="hidden" id="tmsLoadOriginal" />
+                <div class="field-row">
+                  <label><span>Reference</span><input id="tmsLoadReference" autocomplete="off" required /></label>
+                  <label><span>Order Type</span><select id="tmsLoadOrderType"><option value="wms">WMS-linked</option><option value="external">External</option></select></label>
+                  <label><span>Status</span><select id="tmsLoadStatus"></select></label>
+                </div>
+                <div class="field-row">
+                  <label><span>Customer</span><select id="tmsLoadCustomer" required></select></label>
+                  <label><span>Warehouse</span><select id="tmsLoadWarehouse" required></select></label>
+                  <label><span>WMS Shipment</span><select id="tmsLoadShipment"></select></label>
+                </div>
+                <div class="field-row">
+                  <label><span>Carrier</span><select id="tmsLoadCarrier" required></select></label>
+                  <label><span>Carrier Rate</span><select id="tmsLoadCarrierRate"></select></label>
+                  <label><span>Client Rate</span><select id="tmsLoadClientRate"></select></label>
+                </div>
+                <div class="field-row">
+                  <label><span>Mode</span><select id="tmsLoadMode"></select></label>
+                  <label><span>Service Level</span><input id="tmsLoadServiceLevel" autocomplete="off" /></label>
+                  <label><span>PRO / Tracking</span><input id="tmsLoadPro" autocomplete="off" /></label>
+                </div>
+                <div class="field-row">
+                  <label><span>Ship Date</span><input id="tmsLoadShipDate" type="date" /></label>
+                  <label><span>Delivery Date</span><input id="tmsLoadDeliveryDate" type="date" /></label>
+                </div>
+                <label><span>Shipper</span><input id="tmsLoadShipper" autocomplete="off" /></label>
+                <label><span>Origin</span><input id="tmsLoadOrigin" autocomplete="off" /></label>
+                <label><span>Consignee</span><input id="tmsLoadConsignee" autocomplete="off" /></label>
+                <label><span>Destination</span><input id="tmsLoadDestination" autocomplete="off" /></label>
+                <label><span>Bill To</span><input id="tmsLoadBillTo" autocomplete="off" /></label>
+                <fieldset class="shipping-box">
+                  <legend>Freight Details</legend>
+                  <div class="field-row">
+                    <label><span>Class</span><select id="tmsLoadClass"></select></label>
+                    <label><span>NMFC</span><input id="tmsLoadNmfc" autocomplete="off" /></label>
+                    <label><span>Weight</span><input id="tmsLoadWeight" type="number" min="0" step="0.01" /></label>
+                  </div>
+                  <div class="field-row">
+                    <label><span>Handling Units</span><input id="tmsLoadHandlingUnits" type="number" min="1" step="1" /></label>
+                    <label><span>Pieces</span><input id="tmsLoadPieces" type="number" min="1" step="1" /></label>
+                    <label><span>Pallets</span><input id="tmsLoadPallets" type="number" min="0" step="1" /></label>
+                  </div>
+                  <div class="field-row">
+                    <label><span>Length</span><input id="tmsLoadLength" type="number" min="0" step="0.01" /></label>
+                    <label><span>Width</span><input id="tmsLoadWidth" type="number" min="0" step="0.01" /></label>
+                    <label><span>Height</span><input id="tmsLoadHeight" type="number" min="0" step="0.01" /></label>
+                  </div>
+                  <div class="checkbox-grid">
+                    <label class="checkbox-option"><input id="tmsLoadHazmat" type="checkbox" /><span>Hazmat</span></label>
+                    <label class="checkbox-option"><input id="tmsLoadStackable" type="checkbox" checked /><span>Stackable</span></label>
+                  </div>
+                </fieldset>
+                <label><span>Accessorials</span><input id="tmsLoadAccessorials" autocomplete="off" placeholder="Liftgate:45, Residential:65" /></label>
+                <div class="field-row">
+                  <label><span>Declared Value</span><input id="tmsLoadDeclaredValue" type="number" min="0" step="0.01" /></label>
+                  <label><span>Carrier Cost</span><input id="tmsLoadCarrierCost" type="number" min="0" step="0.01" /></label>
+                  <label><span>Client Charge</span><input id="tmsLoadClientCharge" type="number" min="0" step="0.01" /></label>
+                </div>
+                <label><span>Customer Notes</span><textarea id="tmsLoadNotes" rows="2"></textarea></label>
+                <label><span>Internal Notes</span><textarea id="tmsLoadInternalNotes" rows="2"></textarea></label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit" id="tmsLoadSubmitButton">Save Load</button>
+                  <button class="ghost-button" type="button" id="tmsLoadResetButton">Reset</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="panel wide" aria-labelledby="tmsLoadTableTitle">
+              <div class="panel-heading filters">
+                <h4 id="tmsLoadTableTitle">Load Board</h4>
+                <div class="filter-row">
+                  <select id="tmsLoadFilterCustomer" aria-label="Filter TMS loads by customer"></select>
+                  <select id="tmsLoadFilterStatus" aria-label="Filter TMS loads by status"></select>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Load</th><th>Customer</th><th>Mode</th><th>Status</th><th>Carrier</th><th>Lane</th><th>Class</th><th>Weight</th><th>Carrier Cost</th><th>Client Charge</th><th>Margin</th><th class="actions-col">Actions</th></tr>
+                  </thead>
+                  <tbody id="tmsLoadTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="tms-carriers" aria-labelledby="tmsCarriersTitle">
+          <div class="view-heading">
+            <div><p class="eyebrow">Network</p><h3 id="tmsCarriersTitle">Carriers</h3></div>
+          </div>
+          <div class="content-grid split">
+            <section class="panel" aria-labelledby="tmsCarrierFormTitle">
+              <div class="panel-heading"><h4 id="tmsCarrierFormTitle">Carrier Setup</h4></div>
+              <form class="data-form" id="tmsCarrierForm">
+                <input type="hidden" id="tmsCarrierOriginal" />
+                <label><span>Carrier Name</span><input id="tmsCarrierName" autocomplete="off" required /></label>
+                <div class="field-row">
+                  <label><span>SCAC</span><input id="tmsCarrierScac" autocomplete="off" maxlength="8" /></label>
+                  <label><span>Status</span><select id="tmsCarrierStatus"><option value="active">Active</option><option value="inactive">Inactive</option></select></label>
+                </div>
+                <div class="checkbox-grid" id="tmsCarrierModes"></div>
+                <label><span>Contact</span><input id="tmsCarrierContact" autocomplete="off" /></label>
+                <label><span>Email</span><input id="tmsCarrierEmail" type="email" autocomplete="off" /></label>
+                <label><span>Phone</span><input id="tmsCarrierPhone" autocomplete="off" /></label>
+                <label><span>Service Areas</span><input id="tmsCarrierAreas" autocomplete="off" /></label>
+                <label><span>Insurance / Policies</span><textarea id="tmsCarrierInsurance" rows="2"></textarea></label>
+                <label><span>Internal Notes</span><textarea id="tmsCarrierNotes" rows="2"></textarea></label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit" id="tmsCarrierSubmitButton">Save Carrier</button>
+                  <button class="ghost-button" type="button" id="tmsCarrierResetButton">Reset</button>
+                </div>
+              </form>
+            </section>
+            <section class="panel wide" aria-labelledby="tmsCarrierTableTitle">
+              <div class="panel-heading"><h4 id="tmsCarrierTableTitle">Carrier Directory</h4></div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Carrier</th><th>SCAC</th><th>Modes</th><th>Service Areas</th><th>Status</th><th>Contact</th><th class="actions-col">Actions</th></tr>
+                  </thead>
+                  <tbody id="tmsCarrierTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="tms-carrier-rates" aria-labelledby="tmsCarrierRatesTitle">
+          <div class="view-heading"><div><p class="eyebrow">Internal Cost</p><h3 id="tmsCarrierRatesTitle">Carrier Rates</h3></div></div>
+          <div class="content-grid split">
+            <section class="panel" aria-labelledby="tmsCarrierRateFormTitle">
+              <div class="panel-heading"><h4 id="tmsCarrierRateFormTitle">Rate Card</h4></div>
+              <form class="data-form" id="tmsCarrierRateForm">
+                <input type="hidden" id="tmsCarrierRateOriginal" />
+                <label><span>Carrier</span><select id="tmsCarrierRateCarrier" required></select></label>
+                <label><span>Lane Name</span><input id="tmsCarrierRateLane" autocomplete="off" required /></label>
+                <div class="field-row">
+                  <label><span>Origin Region</span><input id="tmsCarrierRateOrigin" autocomplete="off" /></label>
+                  <label><span>Destination Region</span><input id="tmsCarrierRateDestination" autocomplete="off" /></label>
+                </div>
+                <div class="field-row">
+                  <label><span>Mode</span><select id="tmsCarrierRateMode"></select></label>
+                  <label><span>Service Level</span><input id="tmsCarrierRateService" autocomplete="off" /></label>
+                  <label><span>Class</span><select id="tmsCarrierRateClass"></select></label>
+                </div>
+                <div class="field-row">
+                  <label><span>Min Weight</span><input id="tmsCarrierRateMinWeight" type="number" min="0" step="0.01" /></label>
+                  <label><span>Max Weight</span><input id="tmsCarrierRateMaxWeight" type="number" min="0" step="0.01" /></label>
+                </div>
+                <div class="field-row">
+                  <label><span>Minimum Charge</span><input id="tmsCarrierRateMinimum" type="number" min="0" step="0.01" /></label>
+                  <label><span>Linehaul / lb</span><input id="tmsCarrierRateLinehaul" type="number" min="0" step="0.01" /></label>
+                  <label><span>Fuel %</span><input id="tmsCarrierRateFuel" type="number" min="0" step="0.01" /></label>
+                </div>
+                <label><span>Accessorial Flat</span><input id="tmsCarrierRateAccessorial" type="number" min="0" step="0.01" /></label>
+                <div class="field-row">
+                  <label><span>Effective From</span><input id="tmsCarrierRateFrom" type="date" /></label>
+                  <label><span>Effective To</span><input id="tmsCarrierRateTo" type="date" /></label>
+                </div>
+                <label><span>Internal Notes</span><textarea id="tmsCarrierRateNotes" rows="2"></textarea></label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit" id="tmsCarrierRateSubmitButton">Save Carrier Rate</button>
+                  <button class="ghost-button" type="button" id="tmsCarrierRateResetButton">Reset</button>
+                </div>
+              </form>
+            </section>
+            <section class="panel wide" aria-labelledby="tmsCarrierRateTableTitle">
+              <div class="panel-heading"><h4 id="tmsCarrierRateTableTitle">Internal Rate Cards</h4></div>
+              <div class="table-wrap"><table><thead><tr><th>Carrier</th><th>Lane</th><th>Mode</th><th>Class</th><th>Weight</th><th>Minimum</th><th>Linehaul</th><th>Fuel</th><th class="actions-col">Actions</th></tr></thead><tbody id="tmsCarrierRateTable"></tbody></table></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="tms-client-rates" aria-labelledby="tmsClientRatesTitle">
+          <div class="view-heading"><div><p class="eyebrow">Customer Pricing</p><h3 id="tmsClientRatesTitle">Client Rates</h3></div></div>
+          <div class="content-grid split">
+            <section class="panel" aria-labelledby="tmsClientRateFormTitle">
+              <div class="panel-heading"><h4 id="tmsClientRateFormTitle">Client Markup Profile</h4></div>
+              <form class="data-form" id="tmsClientRateForm">
+                <input type="hidden" id="tmsClientRateOriginal" />
+                <label><span>Customer</span><select id="tmsClientRateCustomer" required></select></label>
+                <label><span>Profile Name</span><input id="tmsClientRateName" autocomplete="off" required /></label>
+                <div class="field-row">
+                  <label><span>Mode</span><select id="tmsClientRateMode"></select></label>
+                  <label><span>Carrier Rate</span><select id="tmsClientRateCarrierRate"></select></label>
+                </div>
+                <div class="field-row">
+                  <label><span>% Markup</span><input id="tmsClientRatePercent" type="number" min="0" step="0.01" /></label>
+                  <label><span>Flat Markup</span><input id="tmsClientRateFlat" type="number" min="0" step="0.01" /></label>
+                </div>
+                <div class="field-row">
+                  <label><span>Fuel Markup %</span><input id="tmsClientRateFuelMarkup" type="number" min="0" step="0.01" /></label>
+                  <label><span>Accessorial Markup %</span><input id="tmsClientRateAccessorialMarkup" type="number" min="0" step="0.01" /></label>
+                  <label><span>Minimum Margin</span><input id="tmsClientRateMinimumMargin" type="number" min="0" step="0.01" /></label>
+                </div>
+                <div class="field-row">
+                  <label><span>Effective From</span><input id="tmsClientRateFrom" type="date" /></label>
+                  <label><span>Effective To</span><input id="tmsClientRateTo" type="date" /></label>
+                </div>
+                <label><span>Internal Notes</span><textarea id="tmsClientRateNotes" rows="2"></textarea></label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit" id="tmsClientRateSubmitButton">Save Client Rate</button>
+                  <button class="ghost-button" type="button" id="tmsClientRateResetButton">Reset</button>
+                </div>
+              </form>
+            </section>
+            <section class="panel wide" aria-labelledby="tmsClientRateTableTitle">
+              <div class="panel-heading"><h4 id="tmsClientRateTableTitle">Customer-Facing Pricing</h4></div>
+              <div class="table-wrap"><table><thead><tr><th>Customer</th><th>Profile</th><th>Mode</th><th>Carrier Rate</th><th>Markup</th><th>Fuel</th><th>Accessorial</th><th>Minimum Margin</th><th class="actions-col">Actions</th></tr></thead><tbody id="tmsClientRateTable"></tbody></table></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="tms-documents" aria-labelledby="tmsDocumentsTitle">
+          <div class="view-heading">
+            <div><p class="eyebrow">Freight Docs</p><h3 id="tmsDocumentsTitle">BOL & Shipment Summaries</h3></div>
+          </div>
+          <section class="panel bol-panel" aria-labelledby="bolPreviewTitle">
+            <div class="panel-heading filters">
+              <h4 id="bolPreviewTitle">Document Preview</h4>
+              <div class="filter-row">
+                <select id="tmsBolLoadSelect" aria-label="Select load for BOL"></select>
+                <button class="ghost-button" type="button" id="printBolButton">Print BOL</button>
+                <button class="ghost-button" type="button" id="printShipmentSummaryButton">Print Summary</button>
+              </div>
+            </div>
+            <div id="tmsBolPreview" class="bol-preview"></div>
+          </section>
+        </section>
+
+        <section class="view" id="tms-reports" aria-labelledby="tmsReportsTitle">
+          <div class="view-heading">
+            <div><p class="eyebrow">Transportation Analytics</p><h3 id="tmsReportsTitle">TMS Reports</h3></div>
+            <button class="ghost-button" type="button" id="exportTmsReportButton">Export TMS Report</button>
+          </div>
+          <div class="metric-grid report-metrics">
+            <article class="metric"><span>Loads</span><strong id="tmsReportLoads">0</strong></article>
+            <article class="metric"><span>Carrier Cost</span><strong id="tmsReportCost">$0.00</strong></article>
+            <article class="metric"><span>Client Charge</span><strong id="tmsReportRevenue">$0.00</strong></article>
+            <article class="metric accent"><span>Margin</span><strong id="tmsReportMargin">$0.00</strong></article>
+          </div>
+          <section class="panel" aria-labelledby="tmsReportTableTitle">
+            <div class="panel-heading filters">
+              <h4 id="tmsReportTableTitle">Load Profitability</h4>
+              <div class="filter-row">
+                <select id="tmsReportCustomer" aria-label="Filter TMS report by customer"></select>
+                <select id="tmsReportMode" aria-label="Filter TMS report by mode"></select>
+                <select id="tmsReportStatus" aria-label="Filter TMS report by status"></select>
+              </div>
+            </div>
+            <div class="table-wrap"><table><thead><tr><th>Load</th><th>Customer</th><th>Carrier</th><th>Lane</th><th>Mode</th><th>Status</th><th>Class</th><th>Cost</th><th>Charge</th><th>Margin</th></tr></thead><tbody id="tmsReportTable"></tbody></table></div>
+          </section>
+        </section>
+
+        <section class="view" id="customer-portal" aria-labelledby="customerPortalArmTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Read Only</p>
+              <h3 id="customerPortalArmTitle">Customer Portal</h3>
+            </div>
+            <span class="status-pill warn">Prototype privacy preview</span>
+          </div>
+          <section class="panel" aria-labelledby="portalAccessTitle">
+            <div class="panel-heading filters">
+              <h4 id="portalAccessTitle">Customer View</h4>
+              <div class="filter-row">
+                <select id="portalCustomerSelect" aria-label="Customer portal customer"></select>
+                <select id="portalWarehouseSelect" aria-label="Customer portal warehouse"></select>
+              </div>
+            </div>
+            <p class="subtle">Portal users can review their loads, BOL summaries, shipment status, and customer-facing rates. Internal carrier costs, markup, margin, and internal notes are hidden in this view.</p>
+          </section>
+          <div class="metric-grid report-metrics">
+            <article class="metric"><span>Portal Loads</span><strong id="portalTmsLoads">0</strong></article>
+            <article class="metric"><span>Open Loads</span><strong id="portalTmsOpen">0</strong></article>
+            <article class="metric"><span>Total Charges</span><strong id="portalTmsCharges">$0.00</strong></article>
+            <article class="metric accent"><span>Available Rates</span><strong id="portalTmsRates">0</strong></article>
+          </div>
+          <div class="content-grid two-column">
+            <section class="panel" aria-labelledby="portalLoadTableTitle">
+              <div class="panel-heading"><h4 id="portalLoadTableTitle">My Loads</h4></div>
+              <div class="table-wrap"><table><thead><tr><th>Load</th><th>Status</th><th>Mode</th><th>Carrier</th><th>Lane</th><th>Class</th><th>Charge</th></tr></thead><tbody id="portalTmsLoadTable"></tbody></table></div>
+            </section>
+            <section class="panel" aria-labelledby="portalRateTableTitle">
+              <div class="panel-heading"><h4 id="portalRateTableTitle">My Rate Profiles</h4></div>
+              <div class="table-wrap"><table><thead><tr><th>Profile</th><th>Mode</th><th>Lane</th><th>Service</th><th>Terms</th></tr></thead><tbody id="portalTmsRateTable"></tbody></table></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="settings" aria-labelledby="settingsTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Configuration</p>
+              <h3 id="settingsTitle">Settings</h3>
+            </div>
+          </div>
+
+          <div class="content-grid two-column">
+            <section class="panel" aria-labelledby="carrierSettingsTitle">
+              <div class="panel-heading">
+                <h4 id="carrierSettingsTitle">Carrier Services</h4>
+              </div>
+              <form class="data-form" id="carrierSettingsForm">
+                <label>
+                  <span>Signed-In Role</span>
+                  <select id="currentUserRole">
+                    <option value="admin">Admin</option>
+                    <option value="operator">Operator</option>
+                    <option value="viewer">Viewer</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Shipment Mode</span>
+                  <select id="carrierMode">
+                    <option value="demo">Demo Submit</option>
+                    <option value="backend">Live Backend</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Backend URL</span>
+                  <input id="carrierBackendUrl" autocomplete="off" placeholder="https://example.com/api/carrier" />
+                </label>
+                <label>
+                  <span>UPS Account</span>
+                  <input id="upsAccount" autocomplete="off" />
+                </label>
+                <label>
+                  <span>FedEx Account</span>
+                  <input id="fedexAccount" autocomplete="off" />
+                </label>
+                <label>
+                  <span>USPS Account</span>
+                  <input id="uspsAccount" autocomplete="off" />
+                </label>
+                <button class="primary-button" type="submit">Save Carrier Settings</button>
+              </form>
+            </section>
+
+            <section class="panel" aria-labelledby="appearanceTitle">
+              <div class="panel-heading">
+                <h4 id="appearanceTitle">Appearance</h4>
+              </div>
+              <form class="data-form" id="appearanceForm">
+                <label>
+                  <span>App Name</span>
+                  <input id="appearanceAppName" autocomplete="off" />
+                </label>
+                <label>
+                  <span>Logo Initials</span>
+                  <input id="appearanceInitials" autocomplete="off" maxlength="4" />
+                </label>
+                <div class="swatch-grid">
+                  <label>
+                    <span>Primary</span>
+                    <input id="appearancePrimary" type="color" />
+                  </label>
+                  <label>
+                    <span>Navigation</span>
+                    <input id="appearanceNav" type="color" />
+                  </label>
+                  <label>
+                    <span>Accent</span>
+                    <input id="appearanceAccent" type="color" />
+                  </label>
+                  <label>
+                    <span>Background</span>
+                    <input id="appearancePage" type="color" />
+                  </label>
+                </div>
+                <label>
+                  <span>Density</span>
+                  <select id="appearanceDensity">
+                    <option value="comfortable">Comfortable</option>
+                    <option value="compact">Compact</option>
+                  </select>
+                </label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit">Save Appearance</button>
+                  <button class="ghost-button" type="button" id="resetAppearanceButton">Reset Look</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="panel" aria-labelledby="roadmapTitle">
+              <div class="panel-heading">
+                <h4 id="roadmapTitle">Roadmap</h4>
+              </div>
+              <div class="roadmap-grid" id="roadmapGrid"></div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
